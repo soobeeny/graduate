@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto-promise');
-const jwt = require('../../module/jwt.js');
+//const jwt = require('../../module/jwt.js');
 const db = require('../../module/pool.js');
 const upload = require('../../config/multer.js');
 

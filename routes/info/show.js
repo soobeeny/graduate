@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const jwt = require('../../module/jwt.js');
+//const jwt = require('../../module/jwt.js');
 const db = require('../../module/pool.js');
 const moment = require('moment');
 
