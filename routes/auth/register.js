@@ -5,7 +5,7 @@ const crypto = require('crypto-promise');
 const db = require('../../module/pool.js');
 const upload = require('../../config/multer.js');
 
-router.post('/register/truck', upload.array('image', 5), async(req, res, next) => {
+router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), async(req, res, next) => {
     //사진이 maxcount이상 들어오면 500error 남 
 
     //array로 들어왔을 때, max만큼 안들어오면 오류나는지 test해보기 
@@ -36,7 +36,6 @@ router.post('/register/truck', upload.array('image', 5), async(req, res, next) =
     searchUid[0].uid 이렇게 넣어줘야함
     */
 
-
     let registerTruckInfoQuery = 'INSERT INTO truckInfo (t_category, t_name, user_uid) VALUES (?,?,?) ';
     let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid]);
 
@@ -53,13 +52,13 @@ router.post('/register/truck', upload.array('image', 5), async(req, res, next) =
         let insertWorkingInfo = await db.queryParamCnt_Arr(insertWorkingInfoQuery, [registerTruckInfo.insertId, lat, long, location, day, start_time, finish_time]);
 
     }
-
     for (let i = 0; i < req.files.length; i++) {
         if (req.files[i] == undefined)
             break;
         let insertPhotoQuery = 'INSERT INTO truckPhoto (tid, pid, photo) VALUES (?,?,?)';
         let insertPhoto = await db.queryParamCnt_Arr(insertPhotoQuery, [registerTruckInfo.insertId, i + 1, req.files[i].location]);
     }
+
 
     /*    for(let i = 0 ; i < tags.length; i ++){
             let insertTagQuery = 'INSERT INTO tag (tid, tagName) VALUES(?,?)';
@@ -99,7 +98,7 @@ router.post('/register/user', async(req, res, next) => {
         });
     } else {
         res.status(400).send({
-            messgae : "ID Already Exist"
+            messgae: "ID Already Exist"
         });
     }
 
