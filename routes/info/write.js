@@ -113,8 +113,8 @@ router.post('/notice',async(req,res,next)=>{
     let getLikeUsersQuery = ' SELECT token FROM user WHERE uid IN (SELECT uid FROM likely WHERE tid = ?) ';
     let getLikeUsers = await db.queryParamCnt_Arr(getLikeUsersQuery,[tid]);
 
-    let getTruckNameQuery = 'SELECT t_name FROM truckInfo WEHRE tid = ?'
-    let getTruckName = await db.queryParamCnt_Arr(getTruckName,[tid]);
+    let getTruckNameQuery = 'SELECT t_name FROM truckInfo WHERE tid = ?'
+    let getTruckName = await db.queryParamCnt_Arr(getTruckNameQuery,[tid]);
 
 
 for(let i =0;i<getLikeUsers.length;i++){ 

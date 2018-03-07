@@ -41,6 +41,7 @@ router.post('/register/truck', upload.fields({name:'image', maxcount:5}), async(
 
     //운영정보는 배열로 받아서 여기는 for문으로 돌려야할듯? 
     let insertWorkingInfoQuery = 'INSERT INTO workingInfo VALUES(?,?,?,?,?,?,?)'
+    
 
     for (let i = 0; i < time.length; i++) {
         var lat = time[i].lat;
@@ -50,7 +51,6 @@ router.post('/register/truck', upload.fields({name:'image', maxcount:5}), async(
         var start_time = time[i].start;
         var finish_time = time[i].finish;
         let insertWorkingInfo = await db.queryParamCnt_Arr(insertWorkingInfoQuery, [registerTruckInfo.insertId, lat, long, location, day, start_time, finish_time]);
-
     }
     if(req.files != undefined){
         for (let i = 0; i < req.files.length; i++) {

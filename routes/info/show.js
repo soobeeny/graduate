@@ -137,25 +137,43 @@ router.get('/recommend', async(req, res, next) => {
 
 });
 
-router.get('/:category/:lat/:long', async(req, res, next) => {
+router.get('/:category/:lat/:long/:distance', async(req, res, next) => {
     var category = req.params.category;
     //user의 현재 위치
     var currentlat = req.params.lat;
     var currentlong = req.params.long;
-    //var distance = req.params.distance;//???
-
+    var distance = req.params.distance;
+    
     //모든 트럭의 lat,long을 가지고 와야함 
     //var lat = req.params.lat;
     //var long =req.params.long;
 
     var day = moment().format('dddd'); //day of week
 
-    let showCategoryQuery = `SELECT *, (6371*acos(cos(radians(?))*cos(radians(workingInfo.lat))*cos(radians(workingInfo.long) -radians(?))
-    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance
-FROM truckInfo, workingInfo WHERE truckInfo.t_category = ? HAVING distance <= 1 ORDER BY distance LIMIT 0,1000`;
-    //AND workingInfo.day = ? 
+    var showCategoryQuery;
+    var array = [];
 
-    let showCategory = await db.queryParamCnt_Arr(showCategoryQuery, [currentlat, currentlong, currentlat, category, day]); //select문에 ? 넣는게 가능한지.. 
+    if (category === "all") { //주변트럭 탭에서는 카테고리 상관없이 보여줘야함. 
+
+        showCategoryQuery = `SELECT *, (6371*acos(cos(radians(?))*cos(radians(workingInfo.lat))*cos(radians(workingInfo.long) -radians(?))
+    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo HAVING distance <= `+(distance/1000)+` ORDER BY distance LIMIT 0,1000`;
+        //where  workingInfo.day = ? 
+
+        array = [currentlat, currentlong, currentlat, day];
+
+
+    } else {
+
+        showCategoryQuery = `SELECT *, (6371*acos(cos(radians(?))*cos(radians(workingInfo.lat))*cos(radians(workingInfo.long) -radians(?))
+    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo WHERE truckInfo.t_category = ? HAVING distance <= 1 ORDER BY distance LIMIT 0,1000`;
+        //AND workingInfo.day = ? 
+
+        array = [currentlat, currentlong, currentlat, category, day];
+
+    }
+
+    var showCategory = await db.queryParamCnt_Arr(showCategoryQuery, array);
+
 
     /* for (let i = 0; i < showCategory.length; i++) {
          let getTagsQuery = 'SELCET * FROM tag WHERE tid = ?';
@@ -175,7 +193,7 @@ FROM truckInfo, workingInfo WHERE truckInfo.t_category = ? HAVING distance <= 1 
         });
     } else {
         res.status(500).send({
-            message :"Fail Show Truck "
+            message: "Fail Show Truck "
         });
     }
 });
