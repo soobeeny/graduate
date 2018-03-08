@@ -8,12 +8,17 @@ const moment = require('moment');
 router.get('/detail/:tid', async(req, res, next) => {
     var tid = req.params.tid;
 
-    let showDetailQuery = 'SELECT t_name, day,location,menu,price FROM truckInfo, workingInfo,menu WHERE truckInfo.tid = ?'
-    //let showDetailQuery = 'SELECT * FROM truckInfo WHERE tid = ?';
-    let showDetail = await db.queryParamCnt_Arr(showDetailQuery, [tid]);
+    let showTruckNameQuery = 'SELECT t_name FROM truckInfo WHERE tid = ?';
+    let showTruckName = await db.queryParamCnt_Arr(showTruckNameQuery,[tid]);
+    console.log(showTruckName);
+
+    let showDetailQuery = 'SELECT day,location,menu,price FROM workingInfo,menu WHERE workingInfo.info_tid = ? AND menu.tid = ?';
+    let showDetail = await db.queryParamCnt_Arr(showDetailQuery, [tid,tid]);
+    console.log(showDetail);
 
     res.status(200).send({
         message: "Success Show Truck Detail",
+        name: showTruckName,
         result: showDetail
     });
 });
