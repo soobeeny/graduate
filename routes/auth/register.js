@@ -5,7 +5,7 @@ const crypto = require('crypto-promise');
 const db = require('../../module/pool.js');
 const upload = require('../../config/multer.js');
 
-router.post('/register/truck', upload.fields({name:'image', maxcount:5}), async(req, res, next) => {
+router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), async(req, res, next) => {
     //사진이 maxcount이상 들어오면 500error 남 
 
     //array로 들어왔을 때, max만큼 안들어오면 오류나는지 test해보기 
@@ -26,8 +26,9 @@ router.post('/register/truck', upload.fields({name:'image', maxcount:5}), async(
 
     var category = req.body.category;
     var t_name = req.body.name;
-    //var tags = req.body.tags;
+    var tags = req.body.tags;
     var time = req.body.time;
+    var menu = req.body.menu;
 
     /*let searchUidQuery = 'SELECT uid FROM user WHERE name = ?';
     let searchUid = await db.queryParamCnt_Arr(searchUidQuery, [name]);
@@ -35,24 +36,38 @@ router.post('/register/truck', upload.fields({name:'image', maxcount:5}), async(
     searchUid=> 배열이옴 
     searchUid[0].uid 이렇게 넣어줘야함
     */
-    
+
     let registerTruckInfoQuery = 'INSERT INTO truckInfo (t_category, t_name, user_uid) VALUES (?,?,?) ';
     let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid]);
 
     //운영정보는 배열로 받아서 여기는 for문으로 돌려야할듯? 
-    let insertWorkingInfoQuery = 'INSERT INTO workingInfo VALUES(?,?,?,?,?,?,?)'
-    
+    let insertWorkingInfoQuery = 'INSERT INTO workingInfo VALUES(?,?,?,?,?,?,?)';
+    let insertMenuInfoQuery = 'INSERT INTO menu (tid,menu,price) VALUES (?,?,?)';
+    let insertTagsQuery = 'INSERT INTO tag (tid,tagName) VALUES (?,?)';
 
     for (let i = 0; i < time.length; i++) {
-        var lat = time[i].lat;
-        var long = time[i].long;
-        var location = time[i].location;
-        var day = time[i].day;
-        var start_time = time[i].start;
-        var finish_time = time[i].finish;
+        let lat = time[i].lat;
+        let long = time[i].long;
+        let location = time[i].location;
+        let day = time[i].day;
+        let start_time = time[i].start;
+        let finish_time = time[i].finish;
         let insertWorkingInfo = await db.queryParamCnt_Arr(insertWorkingInfoQuery, [registerTruckInfo.insertId, lat, long, location, day, start_time, finish_time]);
     }
-    if(req.files != undefined){
+    for (let i = 0; i < menu.length; i++) {
+        var menuName = menu[i].menuName;
+        var price = menu[i].price;
+        let insertMenuInfo = await db.queryParamCnt_Arr(insertMenuInfoQuery, [registerTruckInfo.insertId, menuName, price]);
+    }
+
+    for (let i = 0; i < tags.length; i++) {
+        let tag = tags[i];
+        if (tag !== "") {
+            let insertTags = await db.queryParamCnt_Arr(insertTagsQuery, [registerTruckInfo.insertId, tag]);
+        }
+    }
+
+    if (req.files != undefined) {
         for (let i = 0; i < req.files.length; i++) {
             if (req.files[i] == undefined)
                 break;
