@@ -10,16 +10,17 @@ router.get('/detail/:tid', async(req, res, next) => {
 
     let showTruckNameQuery = 'SELECT t_name FROM truckInfo WHERE tid = ?';
     let showTruckName = await db.queryParamCnt_Arr(showTruckNameQuery,[tid]);
-    console.log(showTruckName);
-
-    let showDetailQuery = 'SELECT day,location,menu,price FROM workingInfo,menu WHERE workingInfo.info_tid = ? AND menu.tid = ?';
-    let showDetail = await db.queryParamCnt_Arr(showDetailQuery, [tid,tid]);
-    console.log(showDetail);
-
+  
+    let showDetailLocationQuery = 'SELECT day,location FROM workingInfo WHERE workingInfo.info_tid = ? ';
+    let showDetailLocation = await db.queryParamCnt_Arr(showDetailLocationQuery, [tid]);
+  
+    let showMenuQuery = 'SELECT menu,price FROM menu WHERE menu.tid = ?'
+    let showMenu = await db.queryParamCnt_Arr(showMenuQuery,[tid])
     res.status(200).send({
         message: "Success Show Truck Detail",
         name: showTruckName,
-        result: showDetail
+        location: showDetailLocation,
+        menu: showMenu
     });
 });
 
