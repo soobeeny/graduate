@@ -10,23 +10,21 @@ const FCM = require('fcm-node');
 const serverKey = require('../../config/serverKey').key;
 const fcm = new FCM(serverKey);
 
-router.post('/review', upload.single('image'), async(req, res, next) => {
+router.post('/review', async(req, res, next) => {
     //게시판에 글 남기는 것! 사진 한장 남길 수 있음.
-    var photo = null;
-    if (req.file != undefined) {
-        photo = req.file.location;
-    }
 
     var uid = req.body.uid;
     var tid = req.body.tid;
     var content = req.body.content;
     var time = moment().format("YYYY-MM-DD HH:mm");
 
-    let writeReviewQuery = 'INSERT INTO review (review_content,photo,user_uid,truckInfo_tid,write_time) VALUES(?,?,?,?,?)';
-    let writeReview = await db.queryParamCnt_Arr(writeReviewQuery, [content, photo, uid, tid, time]);
+    let writeReviewQuery = 'INSERT INTO review (review_content,user_uid,truckInfo_tid,write_time) VALUES(?,?,?,?)';
+    let writeReview = await db.queryParamCnt_Arr(writeReviewQuery, [content, uid, tid, time]);
+    
     if (writeReview != undefined) {
         res.status(201).send({
-            message: "Success Write Review"
+            message: "Success Write Review",
+            rid : writeReview.insertId
         });
     } else {
         res.status(500).send({
@@ -35,6 +33,21 @@ router.post('/review', upload.single('image'), async(req, res, next) => {
     }
 
 });
+
+router.post('/reviewPhoto',upload.single('image'),async(req,res,next)=>{
+    var rid = req.body.rid;
+    var photo = null;
+    if (req.file != undefined) {
+        photo = req.file.location;
+    }
+
+    let writeReviewPhotoQuery= 'UPDATE review SET photo = ? WHERE rid = ?';
+    let writeReviewPhoto = await db.queryParamCnt_Arr(writeReviewPhotoQuery,[photo,rid]);
+
+    res.status(201).send({
+        message :"Success Write Photo"
+    })
+})
 
 router.post('/comment', async(req, res, next) => {
 
