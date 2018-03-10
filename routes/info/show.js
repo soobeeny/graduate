@@ -120,15 +120,14 @@ router.get('/:category/:lat/:long/:distance', async(req, res, next) => {
 
     var day = moment().format('dddd'); //day of week
 
-    console.log(day);
-    
     var showCategoryQuery;
     var array = [];
 
     if (category === "all") { //주변트럭 탭에서는 카테고리 상관없이 보여줘야함. 
 
         showCategoryQuery = `SELECT *, (6371*acos(cos(radians(?))*cos(radians(workingInfo.lat))*cos(radians(workingInfo.long) -radians(?))
-    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo WHERE workingInfo.day = ?  HAVING distance <= `+(distance/1000)+` ORDER BY distance LIMIT 0,1000`;
+    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo WHERE workingInfo.day = ? 
+    AND truckInfo.tid = workingInfo.info_tid  HAVING distance <= `+(distance/1000)+` ORDER BY distance LIMIT 0,1000`;
         //where  workingInfo.day = ? 
 
         array = [currentlat, currentlong, currentlat,day];
@@ -137,7 +136,8 @@ router.get('/:category/:lat/:long/:distance', async(req, res, next) => {
     } else {
 
         showCategoryQuery = `SELECT *, (6371*acos(cos(radians(?))*cos(radians(workingInfo.lat))*cos(radians(workingInfo.long) -radians(?))
-    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo WHERE truckInfo.t_category = ? AND workingInfo.day= ? HAVING distance <= 1 ORDER BY distance LIMIT 0,1000`;
+    +sin(radians(?))*sin(radians(workingInfo.lat)))) AS distance FROM truckInfo, workingInfo WHERE truckInfo.t_category = ?
+     AND workingInfo.day= ? AND truckInfo.tid = workingInfo.info_tid HAVING distance <= 1 ORDER BY distance LIMIT 0,1000`;
         //AND workingInfo.day = ? 
 
         array = [currentlat, currentlong, currentlat, category,day];
