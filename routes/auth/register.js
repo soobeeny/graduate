@@ -29,7 +29,7 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
     var tags = req.body.tags;
     var time = req.body.time;
     var menu = req.body.menu;
-
+     var number = req.body.number;
     /*let searchUidQuery = 'SELECT uid FROM user WHERE name = ?';
     let searchUid = await db.queryParamCnt_Arr(searchUidQuery, [name]);
     console.log(searchUid);
@@ -37,8 +37,8 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
     searchUid[0].uid 이렇게 넣어줘야함
     */
 
-    let registerTruckInfoQuery = 'INSERT INTO truckInfo (t_category, t_name, user_uid) VALUES (?,?,?) ';
-    let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid]);
+    let registerTruckInfoQuery = 'INSERT INTO truckInfo (t_category, t_name, user_uid,t_number) VALUES (?,?,?,?) ';
+    let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid,number]);
 
     //운영정보는 배열로 받아서 여기는 for문으로 돌려야할듯? 
     let insertWorkingInfoQuery = 'INSERT INTO workingInfo VALUES(?,?,?,?,?,?,?)';

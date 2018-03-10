@@ -21,8 +21,7 @@ router.post('/review', upload.single('image'), async(req, res, next) => {
     var tid = req.body.tid;
     var content = req.body.content;
     var time = moment().format("YYYY-MM-DD HH:mm");
-    console.log(time);
-    
+
     let writeReviewQuery = 'INSERT INTO review (review_content,photo,user_uid,truckInfo_tid,write_time) VALUES(?,?,?,?,?)';
     let writeReview = await db.queryParamCnt_Arr(writeReviewQuery, [content, photo, uid, tid, time]);
     if (writeReview != undefined) {
