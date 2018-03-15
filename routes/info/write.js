@@ -11,7 +11,6 @@ const serverKey = require('../../config/serverKey').key;
 const fcm = new FCM(serverKey);
 
 router.post('/review', async(req, res, next) => {
-    //게시판에 글 남기는 것! 사진 한장 남길 수 있음.
 
     var uid = req.body.uid;
     var tid = req.body.tid;
@@ -159,15 +158,17 @@ router.post('/notice', async(req, res, next) => {
     }
 });
 
-router.post('/promotion',async(req,res,next)=>{
+router.post('/promotion',upload.single('image'),async(req,res,next)=>{
     var tid = req.body.tid;
     var title = req.body.title;
     var content = req.body.content;
-    //var photo = req.body.photo;
-    var time = moment().format("YYYY-MM-DD HH:mm");
-
-    let writePromotionQuery = 'INSERT INTO promotion (tid,title,content,time) VALUES (?,?,?,?)';
-    let writePromotion = await db.queryParamCnt_Arr(writePromotionQuery,[tid,title,content,time]);
+    var time = moment().add(9,'hour').format("YYYY-MM-DD HH:mm");
+    var photo = null;
+    if(req.file != undefined){
+        photo = req.file.location;
+    }
+    let writePromotionQuery = 'INSERT INTO promotion (tid,title,content,time,photo) VALUES (?,?,?,?,?)';
+    let writePromotion = await db.queryParamCnt_Arr(writePromotionQuery,[tid,title,content,time,photo]);
 
     if(writePromotion!=undefined){
         res.status(201).send({

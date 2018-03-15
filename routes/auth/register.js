@@ -139,7 +139,7 @@ router.post('/login', async(req, res, next) => {
     var id = req.body.id;
     var pwd = req.body.pwd;
     var token = req.body.token;
-
+    var getTid = null;
     let checkIdQuery = 'SELECT * FROM user WHERE id = ?';
     let checkResult = await db.queryParamCnt_Arr(checkIdQuery, [id]);
 
@@ -147,10 +147,15 @@ router.post('/login', async(req, res, next) => {
         const salt = checkResult[0].salt;
         const hashedpwd = await crypto.pbkdf2(pwd, salt.toString('base64'), 100000, 32, 'sha512');
         if (hashedpwd.toString('base64') === checkResult[0].pwd) {
+            if(checkResult[0].status===1){
+                let getTidQuery = 'SELECT tid FROM truckInfo WHERE user_uid=? ';
+                getTid = await db.queryParamCnt_Arr(getTidQuery,[checkResult[0].uid]);
+            }
             res.status(201).send({
                 message: "Success Login",
                 result: checkResult[0].uid,
-                status: checkResult[0].status
+                status: checkResult[0].status,
+                tid : getTid
             });
             let getTokenQuery = 'UPDATE user SET token = ? WHERE uid = ?';
             let getToken = await db.queryParamCnt_Arr(getTokenQuery, [token, checkResult[0].uid]);
