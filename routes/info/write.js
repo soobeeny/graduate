@@ -36,6 +36,7 @@ router.post('/review', async(req, res, next) => {
 
 router.post('/reviewPhoto',upload.single('image'),async(req,res,next)=>{
     var rid = req.body.rid;
+
     var photo = null;
     if (req.file != undefined) {
         photo = req.file.location;
@@ -46,8 +47,8 @@ router.post('/reviewPhoto',upload.single('image'),async(req,res,next)=>{
 
     res.status(201).send({
         message :"Success Write Photo"
-    })
-})
+    });
+});
 
 router.post('/comment', async(req, res, next) => {
 

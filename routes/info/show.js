@@ -27,7 +27,7 @@ router.get('/detail/:tid', async(req, res, next) => {
 router.get('/detailPhoto/:tid', async(req, res, next) => {
     var tid = req.params.tid;
 
-   let showDetailPhotoQuery = 'SELECT * FROM truckPhoto WHERE tid = ?';
+   let showDetailPhotoQuery = 'SELECT * FROM truckPhoto WHERE photo_tid = ?';
     let showDetailPhoto = await db.queryParamCnt_Arr(showDetailPhotoQuery, [tid]);
 
 

@@ -71,8 +71,8 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
         for (let i = 0; i < req.files.length; i++) {
             if (req.files[i] == undefined)
                 break;
-            let insertPhotoQuery = 'INSERT INTO truckPhoto (tid, pid, photo) VALUES (?,?,?)';
-            let insertPhoto = await db.queryParamCnt_Arr(insertPhotoQuery, [registerTruckInfo.insertId, i + 1, req.files[i].location]);
+            let insertPhotoQuery = 'INSERT INTO truckPhoto (photo_tid, photo) VALUES (?,?,?)';
+            let insertPhoto = await db.queryParamCnt_Arr(insertPhotoQuery, [registerTruckInfo.insertId, req.files[i].location]);
         }
     }
 
