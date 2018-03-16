@@ -5,7 +5,7 @@ const crypto = require('crypto-promise');
 const db = require('../../module/pool.js');
 const upload = require('../../config/multer.js');
 
-router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), async(req, res, next) => {
+router.post('/register/truck', async(req, res, next) => {
     //사진이 maxcount이상 들어오면 500error 남 
 
     //array로 들어왔을 때, max만큼 안들어오면 오류나는지 test해보기 
@@ -22,23 +22,21 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
     //req.files.length로 접근. 사진 안들어오면 location에 접근 안되므로 
     //truck_idx , photo_idx있어야함. length에 따라서 row만들어야 malloc방식. 너무 static하면 안됨 
 
-    var uid = req.body.uid; //어떻게 처리할건지 ? 
-
+    var uid = req.body.uid;
     var category = req.body.category;
     var t_name = req.body.name;
     var tags = req.body.tags;
     var time = req.body.time;
     var menu = req.body.menu;
-     var number = req.body.number;
+    var number = req.body.number;
     /*let searchUidQuery = 'SELECT uid FROM user WHERE name = ?';
     let searchUid = await db.queryParamCnt_Arr(searchUidQuery, [name]);
-    console.log(searchUid);
     searchUid=> 배열이옴 
     searchUid[0].uid 이렇게 넣어줘야함
     */
 
     let registerTruckInfoQuery = 'INSERT INTO truckInfo (t_category, t_name, user_uid,t_number) VALUES (?,?,?,?) ';
-    let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid,number]);
+    let registerTruckInfo = await db.queryParamCnt_Arr(registerTruckInfoQuery, [category, t_name, uid, number]);
 
     //운영정보는 배열로 받아서 여기는 for문으로 돌려야할듯? 
     let insertWorkingInfoQuery = 'INSERT INTO workingInfo VALUES(?,?,?,?,?,?,?)';
@@ -67,20 +65,6 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
         }
     }
 
-    if (req.files != undefined) {
-        for (let i = 0; i < req.files.length; i++) {
-            if (req.files[i] == undefined)
-                break;
-            let insertPhotoQuery = 'INSERT INTO truckPhoto (photo_tid, photo) VALUES (?,?,?)';
-            let insertPhoto = await db.queryParamCnt_Arr(insertPhotoQuery, [registerTruckInfo.insertId, req.files[i].location]);
-        }
-    }
-
-    /*    for(let i = 0 ; i < tags.length; i ++){
-            let insertTagQuery = 'INSERT INTO tag (tid, tagName) VALUES(?,?)';
-            let insertTag = await db.queryParamCnt_Arr(insertTagQuery,registerTruckInfo.insertId,tags[i]);
-        }
-    */
     res.status(201).send({
         message: "success register truck"
     });
@@ -92,6 +76,21 @@ router.post('/register/truck', upload.fields({ name: 'image', maxcount: 5 }), as
 
 });
 
+router.post('/register/truck/photo', upload.fields({ name: 'image', maxcount: 5 }), async(req, res, next) => {
+
+    var tid = req.body.tid;
+    var insertPhotoQuery = 'INSERT INTO truckPhoto (photo_tid, photo) VALUES (?,?)';
+    if (req.files != undefined) {
+        for (let i = 0; i < req.files.length; i++) {
+            if (req.files[i] == undefined) {}
+            else { let insertPhoto = await db.queryParamCnt_Arr(insertPhotoQuery, [tid, req.files[i].location]); }
+            console.log(insertPhoto);
+        }
+    }
+    res.status(201).send({
+        message: "Success Write TruckPhoto"
+    });
+});
 
 router.post('/register/user', async(req, res, next) => {
     var id = req.body.id;
@@ -147,15 +146,15 @@ router.post('/login', async(req, res, next) => {
         const salt = checkResult[0].salt;
         const hashedpwd = await crypto.pbkdf2(pwd, salt.toString('base64'), 100000, 32, 'sha512');
         if (hashedpwd.toString('base64') === checkResult[0].pwd) {
-            if(checkResult[0].status===1){
+            if (checkResult[0].status === 1) {
                 let getTidQuery = 'SELECT tid FROM truckInfo WHERE user_uid=? ';
-                getTid = await db.queryParamCnt_Arr(getTidQuery,[checkResult[0].uid]);
+                getTid = await db.queryParamCnt_Arr(getTidQuery, [checkResult[0].uid]);
             }
             res.status(201).send({
                 message: "Success Login",
                 result: checkResult[0].uid,
                 status: checkResult[0].status,
-                tid : getTid
+                tid: getTid
             });
             let getTokenQuery = 'UPDATE user SET token = ? WHERE uid = ?';
             let getToken = await db.queryParamCnt_Arr(getTokenQuery, [token, checkResult[0].uid]);
