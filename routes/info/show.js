@@ -97,7 +97,7 @@ router.get('/notice', async(req, res, next) => {
 router.get('/promotion',async(req,res,next)=>{
     //흠.. 기준을 정해서 where문 추가하기 
 
-    let showPromotionQuery = 'SELECT * FROM promotion';
+    let showPromotionQuery = 'SELECT promotion.*,truckInfo.t_name FROM promotion JOIN truckInfo USING(tid)';
     let showPromotion = await db.queryParamCnt_None(showPromotionQuery);
 
     if(showPromotion!=undefined){
